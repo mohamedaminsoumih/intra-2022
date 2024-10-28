@@ -30,10 +30,13 @@ def ones_at_the_end(x):
     :param x: python int list
     :return: python int list
     """
-    pass
+    # Séparer les éléments égaux à 1 et ceux différents de 1
+    non_ones = [num for num in x if num != 1]
+    ones = [num for num in x if num == 1]
+    
+    # Inverser l'ordre des éléments non égaux à 1, puis ajouter les uns à la fin
+    return non_ones[::-1] + ones
 
-
-# %%
 '''
 ### Final Position
 Given a string of instructions 'up' 'down' 'left' 'right', return the end position of an agent
@@ -63,10 +66,25 @@ def final_position(instructions):
     :param instructions: string
     :return: int tuple
     """
-    pass
+    # Initialiser la position de départ
+    x, y = 0, 0
 
+    # Diviser les instructions en une liste de mots
+    moves = instructions.split()
+    
+    # Parcourir chaque instruction pour mettre à jour la position
+    for move in moves:
+        if move == "up":
+            y += 1
+        elif move == "down":
+            y -= 1
+        elif move == "right":
+            x += 1
+        elif move == "left":
+            x -= 1
 
-# %%
+    return (x, y)
+
 '''
 ### Steps to One
 Let f be the following operation on integers :
@@ -102,12 +120,17 @@ fois où f est appliquée)
 def steps_to_one(i):
     """
     :param i: int
-    :return:  int
+    :return: int
     """
-    pass
+    steps = 0
+    while i != 1:
+        if i % 2 == 0:
+            i //= 2
+        else:
+            i = 3 * i + 1
+        steps += 1
+    return steps
 
-
-# %%
 '''
 ### Find Bins
 Given a list of k * h different floats, return a list of k+1 floats in increasing order that
@@ -137,7 +160,16 @@ def find_bins(input_list, k):
     :param k: int
     :return: list of k+1 floats
     """
-    pass
+    # Trier la liste pour trouver les bornes des intervalles
+    sorted_list = sorted(input_list)
+    h = len(sorted_list) // k  # Calcul du nombre d'éléments dans chaque intervalle
+
+    # Générer une liste pour les bornes des intervalles
+    bins = [sorted_list[i * h] for i in range(k)]
+    bins.append(sorted_list[-1] + 1)  # Ajout de la dernière borne supérieure
+
+    return bins
+
 
 
 # %%
@@ -161,12 +193,16 @@ et les entiers impairs sont à la fin, dans le même ordre d'apparition qu'en en
 
 
 # %%
+import numpy as np
+
 def even_odd_ordered(X):
     """
     :param X: np.array of shape (n,)
     :return: np.array of shape (n,)
     """
-    pass
+    evens = [x for x in X if x % 2 == 0]
+    odds = [x for x in X if x % 2 != 0]
+    return np.array(evens + odds)
 
 
 # %%
@@ -200,12 +236,29 @@ Output Array / Tableau de sortie:
 
 
 # %%
+import numpy as np
+
 def data_normalization(X):
     """
     :param X: np.array of shape n x (d+1)
     :return: np.array of shape n x (d+1)
     """
-    pass
+    # Séparer les attributs et l'objectif
+    attributes = X[:, :-1]
+    target = X[:, -1]
+
+    # Calculer la moyenne et l'écart-type des attributs pour chaque colonne
+    mean = np.mean(attributes, axis=0)
+    std_dev = np.std(attributes, axis=0)
+
+    # Normaliser chaque attribut (chaque colonne) en soustrayant la moyenne et en divisant par l'écart-type
+    normalized_attributes = (attributes - mean) / std_dev
+
+    # Recomposer la matrice avec les attributs normalisés et la dernière colonne intacte
+    normalized_X = np.hstack((normalized_attributes, target.reshape(-1, 1)))
+
+    return normalized_X
+
 
 
 # %%
@@ -237,12 +290,22 @@ ne sont pas positives)
 
 
 # %%
+import numpy as np
+
 def entropy(p):
     """
     :param p: np.array of shape (n,)
     :return: float or None
     """
-    pass
+    # Vérifier si la distribution est valide
+    if np.any(p < 0) or not np.isclose(np.sum(p), 1):
+        return None
+    
+    # Calculer l'entropie en utilisant la définition donnée
+    entropy_value = -np.sum([pi * np.log2(pi) for pi in p if pi > 0])
+
+    return entropy_value
+
 
 # %%
 '''
@@ -314,13 +377,27 @@ On renvoie $[0.3, 0.4]$.
 
 
 # %%
+import numpy as np
+
 def heavyball_optimizer(x, inputs, alpha=0.9, beta=0.1):
     """
     :param x: np.array of size (n,)
     :param inputs: a list of np.arrays of size (n,)
     :return: np.array of size (n,)
     """
-    pass
+    # Initialisation de x_0
+    x_prev = np.zeros_like(x)
+    
+    # Boucle sur chaque gradient
+    for g in inputs:
+        # Calcul de x_{k+1} en utilisant la formule du Heavyball
+        x_new = x - alpha * g + beta * (x - x_prev)
+        
+        # Mettre à jour les valeurs de x et x_prev pour la prochaine itération
+        x_prev, x = x, x_new
+    
+    return x
+
 
 
 # %%
@@ -368,6 +445,8 @@ est la performance attendue sur cet exemple.
 
 
 # %%
+import numpy as np
+
 class NearestCentroidClassifier:
     def __init__(self, k, d):
         """Initialize a classifier with k classes in dimension d
@@ -379,29 +458,36 @@ class NearestCentroidClassifier:
         self.k = k
         self.centroids = np.zeros((k, d))
 
-    def fit(self, X, y):  # question A
+    def fit(self, X, y):
         """For each class k, compute the centroid and store it in self.centroids[k]
         Pour chaque class k, calcule le centroïde et l'enregistre dans self.centroids[k]
 
         :param X: float np.array of size N x d (each row is a data point / chaque ligne est un point)
         :param y: int np.array of size N (class of each data point / classe de chaque point)
         """
+        for class_label in range(self.k):
+            # Extraire les points appartenant à la classe actuelle
+            class_points = X[y == class_label]
+            # Calculer et assigner le centroïde pour cette classe
+            if len(class_points) > 0:
+                self.centroids[class_label] = np.mean(class_points, axis=0)
 
-        # self.centroids[k] =
-        pass
-
-    def predict(self, X):  # question B
+    def predict(self, X):
         """For each data point in the input X, return the predicted class
         Pour chaque point de l'entrée X, retourne la classe prédite
 
         :param X: float np.array of size N x d (each row is a data point / chaque ligne est un point)
         :return: int np.array of size N (predicted class of each data point / classe prédite pour chaque point)
         """
+        predictions = []
+        for point in X:
+            # Calculer la distance L2 entre le point et chaque centroïde
+            distances = np.linalg.norm(self.centroids - point, axis=1)
+            # Trouver la classe avec le centroïde le plus proche
+            predictions.append(np.argmin(distances))
+        return np.array(predictions)
 
-        # return predictions
-        pass
-
-    def score(self, X, y):  # question C
+    def score(self, X, y):
         """Compute the average accuracy of your classifier on the data points of input
         X with true labels y. That is, predict the class of each data point in X, and
         compare the predictions with the true labels y. Return how often your classifier
@@ -411,16 +497,15 @@ class NearestCentroidClassifier:
         et comparez les prédictions avec les vraies classes y. Retourner avec quelle
         fréquence votre classificateur est correct.
 
-        :param X: loat np.array of size N x d (each row is a data point / chaque ligne est un point)
+        :param X: float np.array of size N x d (each row is a data point / chaque ligne est un point)
         :param y: int np.array of size N (true class of each data point / vraie classe de chaque point)
         :return: float in [0,1] (success rate / taux de succès)
         """
+        predictions = self.predict(X)
+        accuracy = np.mean(predictions == y)
+        return accuracy
 
-        # return score
-        pass
-
-
-# %%
+# Test de la classe
 def test_centroid_classifer():
     train_points = np.array([[0.], [1.], [5.], [4.], [4.], [4.]])
     train_labels = np.array([0, 0, 0, 1, 1, 1])
@@ -437,6 +522,7 @@ def test_centroid_classifer():
     score = clf.score(test_points, test_labels)
     print(f'Your classifier predicted {predictions}')
     print(f'This gives it a score of {score}')
+
 
 
 if __name__ == '__main__':

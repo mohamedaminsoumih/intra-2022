@@ -154,21 +154,26 @@ Les solutions ne sont pas uniques, mais toute réponse valide sera acceptée.
 
 
 # %%
+import numpy as np
+
 def find_bins(input_list, k):
     """
     :param input_list: list of k*h floats
     :param k: int
     :return: list of k+1 floats
     """
-    # Trier la liste pour trouver les bornes des intervalles
-    sorted_list = sorted(input_list)
-    h = len(sorted_list) // k  # Calcul du nombre d'éléments dans chaque intervalle
+    # Trier les éléments pour définir des intervalles égaux
+    sorted_list = np.sort(input_list)
+    h = len(sorted_list) // k  # Nombre d'éléments dans chaque intervalle
 
-    # Générer une liste pour les bornes des intervalles
-    bins = [sorted_list[i * h] for i in range(k)]
-    bins.append(sorted_list[-1] + 1)  # Ajout de la dernière borne supérieure
+    # Sélectionner des points intermédiaires pour garantir h éléments dans chaque intervalle
+    bins = [sorted_list[0] - 1]  # Commencer avec une valeur inférieure pour englober le minimum
+    for i in range(1, k):
+        bins.append((sorted_list[i * h - 1] + sorted_list[i * h]) / 2)
+    bins.append(sorted_list[-1] + 1)  # Ajouter une valeur supérieure pour englober le maximum
 
     return bins
+
 
 
 
